@@ -9,7 +9,7 @@ import goalsRoutes from "./routes/goals.js";
 import profileRoutes from "./routes/profile.js";
 import progressRoutes from "./routes/progress.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
-
+import passwordRoutes from './routes/password.js';
 dotenv.config();
 
 connectDB();
@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
 
 // Public Routes
 app.use("/api/auth", authRoutes);
-
+app.use('/api/password', passwordRoutes);
 // Protected Routes
 app.use(authMiddleware);
 app.use("/api/fitness", fitnessRoutes);
@@ -40,5 +40,6 @@ app.use("/api/progress", progressRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 
 
