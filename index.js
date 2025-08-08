@@ -18,7 +18,7 @@ const app = express();
 app.use(
   cors({
     origin: "https://health-wellnes-s.netlify.app",
-
+   credentials: true,
   })
 );
 app.use(express.json());
@@ -40,6 +40,7 @@ app.use("/api/progress", progressRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 
 
 
