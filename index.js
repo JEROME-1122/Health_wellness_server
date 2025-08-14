@@ -10,7 +10,7 @@ import nutritionRoutes from "./routes/nutrition.js";
 import goalsRoutes from "./routes/goals.js";
 import profileRoutes from "./routes/profile.js";
 import progressRoutes from "./routes/progress.js";
-// import caloriesRoutes from "./routes/calories.js"; 
+import caloriesRoutes from "./routes/calories.js"; 
 import passwordRoutes from "./routes/password.js";
 
 import { authMiddleware } from "./middleware/authMiddleware.js";
@@ -43,8 +43,9 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/progress", progressRoutes);
 
 // Calorie totals endpoint (intake vs burn)
-// app.use("/api/calories", caloriesRoutes);
+app.use("/api/calories", caloriesRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 
