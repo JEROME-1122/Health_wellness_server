@@ -1,13 +1,13 @@
 import express from 'express';
-import { updateProfile, getProfile } from '../controllers/profileController.js';
-import {authMiddleware} from '../middleware/authMiddleware.js';  // ✅ Import Auth Middleware
+import {  getProfile } from '../controllers/profileController.js';
+
 
 const router = express.Router();
 
-// GET Profile (Protected Route)
-router.get('/', authMiddleware, getProfile);
 
-// Update Profile (Optional, if needed)
-router.put('/', authMiddleware, updateProfile);
+router.get('/', getProfile);
+
+
+
 
 export default router;

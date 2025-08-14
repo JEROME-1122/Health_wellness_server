@@ -1,46 +1,78 @@
-import Nutrition from '../models/Nutrition.js';
+import Nutrition from "../models/Nutrition.js";
 
-// Add Nutrition
-export const logNutrition = async (req, res) => {
+// Add food log
+export const addFood = async (req, res) => {
   try {
-    const newNutrition = new Nutrition({ ...req.body, user: req.userId });
-    await newNutrition.save();
-    res.status(201).json(newNutrition);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const { foodName, quantity, calories, protein, carbs, fat } = req.body;
+
+    const food = new Nutrition({
+      user: req.user.id,
+      foodName,
+      quantity,
+      calories,
+      protein,
+      carbs,
+      fat,
+    });
+
+    await food.save();
+    res.status(201).json(food);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// Get All Nutritions for Logged In User
-export const getNutritions = async (req, res) => {
+// Get all food logs for logged-in user
+export const getFoods = async (req, res) => {
   try {
-    const nutritions = await Nutrition.find({ user: req.userId });
-    res.status(200).json(nutritions);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const foods = await Nutrition.find({ user: req.user.id }).sort({ date: -1 });
+    res.json(foods);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// Update Nutrition
-export const updateNutrition = async (req, res) => {
+// Update a food log
+export const updateFood = async (req, res) => {
   try {
-    const updatedNutrition = await Nutrition.findByIdAndUpdate(
-      req.params.id,
-      { ...req.body },
-      { new: true }
-    );
-    res.status(200).json(updatedNutrition);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const { foodName, quantity, calories, protein, carbs, fat } = req.body;
+
+    const food = await Nutrition.findById(req.params.id);
+    if (!food) return res.status(404).json({ message: "Food log not found" });
+
+    if (food.user.toString() !== req.user.id)
+      return res.status(401).json({ message: "Not authorized" });
+
+    food.foodName = foodName || food.foodName;
+    food.quantity = quantity || food.quantity;
+    food.calories = calories || food.calories;
+    food.protein = protein || food.protein;
+    food.carbs = carbs || food.carbs;
+    food.fat = fat || food.fat;
+
+    await food.save();
+    res.json(food);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// Delete Nutrition
-export const deleteNutrition = async (req, res) => {
+// Delete a food log
+export const deleteFood = async (req, res) => {
   try {
-    await Nutrition.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'Nutrition deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const food = await Nutrition.findById(req.params.id);
+    if (!food) return res.status(404).json({ message: "Food log not found" });
+
+    if (food.user.toString() !== req.user.id)
+      return res.status(401).json({ message: "Not authorized" });
+
+    await food.deleteOne();
+    res.json({ message: "Food log deleted" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };

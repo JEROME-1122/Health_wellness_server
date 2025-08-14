@@ -1,11 +1,12 @@
-import express from 'express';
-import { logExercise, getExercises, updateExercise, deleteExercise } from '../controllers/fitnessController.js';
+// routes/fitness.js
+import express from "express";
+import { addWorkout, getWorkouts, updateWorkout, deleteWorkout } from "../controllers/fitnessController.js";
 
 const router = express.Router();
 
-router.post('/', logExercise);        // Add Exercise
-router.get('/', getExercises);         // Get All Exercises
-router.put('/:id', updateExercise);    // Update Exercise
-router.delete('/:id', deleteExercise); // Delete Exercise
+router.post("/", addWorkout);
+router.get("/", getWorkouts);
+router.put("/:id", updateWorkout);
+router.delete("/:id", deleteWorkout);
 
 export default router;

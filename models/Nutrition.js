@@ -1,14 +1,14 @@
+import mongoose from "mongoose";
 
-import mongoose from 'mongoose';
-
-const NutritionSchema = new mongoose.Schema({
-  item: String,
-  calories: Number,
-  proteins: Number,
+const nutritionSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  foodName: { type: String, required: true },
+  quantity: { type: Number, required: true }, // in grams
+  calories: { type: Number, required: true },
+  protein: Number,
   carbs: Number,
-  fats: Number,
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  createdAt: { type: Date, default: Date.now }
+  fat: Number,
+  date: { type: Date, default: Date.now },
 });
 
-export default mongoose.model('Nutrition', NutritionSchema);
+export default mongoose.model("Nutrition", nutritionSchema);

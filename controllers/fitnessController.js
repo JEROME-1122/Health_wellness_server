@@ -1,51 +1,91 @@
-import Fitness from '../models/Fitness.js';
-import mongoose from 'mongoose';
+import Fitness from "../models/Fitness.js";
 
-// Create (Add Exercise)
-export const logExercise = async (req, res) => {
+// Helper function to calculate calories burned
+const calculateCalories = (workoutType, duration) => {
+  const caloriesPerMinute = {
+    running: 10,
+    cycling: 8,
+    strength: 6,
+  };
+  return (caloriesPerMinute[workoutType] || 5) * duration;
+};
+
+// Add new workout
+export const addWorkout = async (req, res) => {
   try {
-    const newExercise = new Fitness({ ...req.body, user: req.userId });
-    await newExercise.save();
-    res.status(201).json(newExercise);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const { workoutType, duration } = req.body;
+
+    const caloriesBurned = calculateCalories(workoutType, duration);
+
+    const workout = new Fitness({
+      user: req.user.id,
+      workoutType,
+      duration,
+      caloriesBurned,
+    });
+
+    await workout.save();
+    res.status(201).json(workout);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// Read (Get All Exercises for Logged-in User)
-export const getExercises = async (req, res) => {
+// Get all workouts for logged-in user
+export const getWorkouts = async (req, res) => {
   try {
-    const exercises = await Fitness.find({ user: req.userId }).sort({ createdAt: -1 });
-    res.status(200).json(exercises);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const workouts = await Fitness.find({ user: req.user.id }).sort({
+      date: -1,
+    });
+    res.json(workouts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// Update Exercise
-export const updateExercise = async (req, res) => {
-  const { id } = req.params;
+// Update a workout
+export const updateWorkout = async (req, res) => {
   try {
-    const updatedExercise = await Fitness.findOneAndUpdate(
-      { _id: id, user: req.userId },
-      { ...req.body },
-      { new: true }
+    const { workoutType, duration } = req.body;
+
+    const workout = await Fitness.findById(req.params.id);
+    if (!workout) return res.status(404).json({ message: "Workout not found" });
+
+    // Only allow owner to update
+    if (workout.user.toString() !== req.user.id)
+      return res.status(401).json({ message: "Not authorized" });
+
+    workout.workoutType = workoutType || workout.workoutType;
+    workout.duration = duration || workout.duration;
+    workout.caloriesBurned = calculateCalories(
+      workout.workoutType,
+      workout.duration
     );
-    if (!updatedExercise) return res.status(404).json({ message: 'Exercise not found' });
-    res.status(200).json(updatedExercise);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+
+    await workout.save();
+    res.json(workout);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// Delete Exercise
-export const deleteExercise = async (req, res) => {
-  const { id } = req.params;
+// Delete a workout
+export const deleteWorkout = async (req, res) => {
   try {
-    const deletedExercise = await Fitness.findOneAndDelete({ _id: id, user: req.userId });
-    if (!deletedExercise) return res.status(404).json({ message: 'Exercise not found' });
-    res.status(200).json({ message: 'Exercise deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const workout = await Fitness.findById(req.params.id);
+    if (!workout) return res.status(404).json({ message: "Workout not found" });
+
+    // Only allow owner to delete
+    if (workout.user.toString() !== req.user.id)
+      return res.status(401).json({ message: "Not authorized" });
+
+    await workout.deleteOne();;
+    res.json({ message: "Workout deleted" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
