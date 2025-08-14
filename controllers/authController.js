@@ -51,7 +51,7 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       { id: existingUser._id, email: existingUser.email },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
 
     // Send the same format as register
@@ -68,3 +68,4 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Something went wrong", error: error.message });
   }
 };
+
